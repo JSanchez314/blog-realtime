@@ -1,0 +1,4 @@
+/.env
+/bin/
+/vendor/
+/rds-combined-ca-bundle.pem

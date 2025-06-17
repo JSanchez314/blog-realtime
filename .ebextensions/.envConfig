@@ -1,0 +1,13 @@
+PORT=8080
+PG_URL=postgres://user:pass@rds-endpoint:5432/blogdb?sslmode=disable
+MONGO_URI=mongodb://admin:pass@docdb-endpoint:27017/?tls=true
+MONGO_CA_PEM=./rds-combined-ca-bundle.pem
+JWT_SECRET=mi_secreto_ultra_seguro
+
+option_settings:
+  aws:elasticbeanstalk:application:environment:
+    PORT: "8080"
+    PG_URL: "postgres://user:pass@rds-endpoint:5432/blogdb?sslmode=disable"
+    MONGO_URI: "mongodb://admin:pass@docdb-endpoint:27017/?tls=true"
+    MONGO_CA_PEM: "/var/app/current/rds-combined-ca-bundle.pem"
+    JWT_SECRET: "mi_secreto_ultra_seguro"
