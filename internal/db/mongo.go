@@ -4,7 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
+	"os"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -12,7 +12,7 @@ import (
 
 func NewMongo(uri, caPath string) (*mongo.Collection, error) {
 	roots := x509.NewCertPool()
-	pem, err := ioutil.ReadFile(caPath)
+	pem, err := os.ReadFile(caPath)
 	if err != nil {
 		return nil, err
 	}
@@ -23,6 +23,5 @@ func NewMongo(uri, caPath string) (*mongo.Collection, error) {
 	if err != nil {
 		return nil, err
 	}
-	return client.Database("blog").Collection("commments"), nil
-
+	return client.Database("blog").Collection("comments"), nil
 }

@@ -15,14 +15,14 @@ type MongoCollection interface {
 	InsertOne(ctx context.Context, document interface{}) (*mongo.InsertOneResult, error)
 }
 
-type client struct {
+type Client struct {
 	conn *websocket.Conn
 	send chan model.Comment
 }
 
 type subscription struct {
 	postID int
-	client *client
+	client *Client
 }
 
 type broadcastMsg struct {
@@ -34,7 +34,7 @@ type Hub struct {
 	register   chan subscription
 	unregister chan subscription
 	broadcast  chan broadcastMsg
-	rooms      map[int]map[*client]bool
+	rooms      map[int]map[*Client]bool
 	mongoCol   MongoCollection
 }
 
@@ -43,7 +43,7 @@ func NewHub(col MongoCollection) *Hub {
 		register:   make(chan subscription),
 		unregister: make(chan subscription),
 		broadcast:  make(chan broadcastMsg),
-		rooms:      make(map[int]map[*client]bool),
+		rooms:      make(map[int]map[*Client]bool),
 		mongoCol:   col,
 	}
 }
@@ -56,7 +56,7 @@ func (h *Hub) Run() {
 		case sub := <-h.register:
 			clients, ok := h.rooms[sub.postID]
 			if !ok {
-				clients = make(map[*client]bool)
+				clients = make(map[*Client]bool)
 				h.rooms[sub.postID] = clients
 			}
 			h.rooms[sub.postID][sub.client] = true
@@ -97,11 +97,11 @@ func (h *Hub) Run() {
 	}
 }
 
-func (h *Hub) Register(postID int, c *client) {
+func (h *Hub) Register(postID int, c *Client) {
 	h.register <- subscription{postID, c}
 }
 
-func (h *Hub) Unregister(postID int, c *client) {
+func (h *Hub) Unregister(postID int, c *Client) {
 	h.unregister <- subscription{postID, c}
 }
 
@@ -109,7 +109,7 @@ func (h *Hub) Broadcast(postID int, comment model.Comment) {
 	h.broadcast <- broadcastMsg{postID, comment}
 }
 
-func (c *client) Writer() {
+func (c *Client) Writer() {
 	for msg := range c.send {
 		if err := c.conn.WriteJSON(msg); err != nil {
 			break
